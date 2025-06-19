@@ -1,288 +1,150 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
+  <title>ESP32 RGB Firebase Controller</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ESP32 RGB LED Controller</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    @font-face {
-      font-family: 'Space Grotesk';
-      src: url('fonts/SpaceGrotesk-Regular.ttf') format('truetype');
-      font-weight: 400;
-      font-style: normal;
-    }
-    html, body {
-      height: 100%;
-      min-height: 100vh;
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      overflow: hidden;
-    }
     body {
-      background: #181b1f;
-      min-height: 100vh;
-      width: 100vw;
-      font-family: 'Space Grotesk', Arial, sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      overflow: hidden;
-    }
-    .container {
-      background: #181b1f;
-      width: 100vw;
-      max-width: 420px;
-      height: auto;
-      min-height: 70vh;
-      margin: auto;
-      border-radius: 20px;
-      box-shadow: 0 4px 32px #0002;
-      padding: 2.5vh 2vw 2.5vh 2vw;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      box-sizing: border-box;
-      overflow: hidden;
-    }
-    .header {
-      display: flex;
-      align-items: center;
-      background: #181b1f;
-      border-radius: 16px 16px 0 0;
-      padding: 12px 20px 10px 20px;
-      font-weight: bold;
-      font-size: 1.1rem;
+      background-color: #121212;
       color: #fff;
-      letter-spacing: 1px;
-      box-shadow: 0 2px 8px #0001;
-      margin-bottom: 8px;
-    }
-    .header-icon {
-      margin-right: 10px;
-      font-size: 1.2em;
-    }
-    h2 {
-      color: #00ffff;
-      margin: 10px 0 18px 0;
-      font-size: 2rem;
-      font-weight: 700;
-      letter-spacing: 1px;
+      font-family: 'Space Grotesk', sans-serif;
       text-align: center;
+      padding: 30px 16px;
+    }
+    h1 {
+      color: #00ffff;
+      font-size: 2rem;
+      margin-bottom: 24px;
     }
     .color-preview {
-      min-height: 70px;
-      height: 70px;
-      max-height: 100px;
-      width: 100%;
-      max-width: 320px;
-      margin: 0 auto 18px auto;
-      background: #23272f;
+      width: 120px;
+      height: 120px;
+      margin: 20px auto;
       border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 0 16px #0003;
-      color: #fff;
-      font-size: 1.3rem;
-      font-weight: 600;
-      letter-spacing: 1px;
+      border: 2px solid #00cccc;
+      box-shadow: 0 0 20px rgba(0,255,255,0.4);
+      background-color: rgb(0, 0, 0);
       transition: background 0.3s;
-      border: 2px solid #222;
-    }
-    .sliders {
-      gap: 1.2vh;
-      margin-bottom: 1.5vh;
-      max-width: 320px;
-      margin-left: auto;
-      margin-right: auto;
-      width: 100%;
     }
     .slider-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: #e0e6eb;
-      font-size: 1.05rem;
-      width: 100%;
+      margin: 16px auto;
+      max-width: 300px;
+    }
+    label {
+      display: block;
       margin-bottom: 6px;
-    }
-    .slider-row label {
-      width: 48px;
-      text-align: right;
-      font-weight: 500;
-      flex-shrink: 0;
-      font-size: 1.05rem;
-    }
-    .slider-row input[type="range"] {
-      flex: 1;
-      accent-color: #00ffff;
-      height: 4px;
-      background: #23272f;
-      border-radius: 4px;
-      outline: none;
-      min-width: 0;
-    }
-    .slider-value {
-      width: 32px;
-      text-align: left;
-      color: #fff;
       font-weight: 600;
-      font-size: 1.05rem;
-      flex-shrink: 0;
+      color: #00ffff;
     }
-    .preset-row {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 1.5vh;
-      max-width: 320px;
-      margin-left: auto;
-      margin-right: auto;
-      flex-wrap: wrap;
+    input[type=range] {
       width: 100%;
-      justify-content: center;
+      appearance: none;
+      height: 8px;
+      border-radius: 4px;
+      background: #444;
+      outline: none;
+      margin-bottom: 8px;
     }
-    .preset-btn {
-      min-width: 60px;
-      padding: 8px 0;
+    input[type=range]::-webkit-slider-thumb {
+      appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #00ffff;
+      cursor: pointer;
+    }
+    .value {
       font-size: 1rem;
-      background: #23272f;
-      color: #fff;
+      margin-top: -8px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px 24px;
+      font-size: 1.1rem;
       border: none;
       border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      box-shadow: 0 0 8px #00ffff44;
-      transition: background 0.2s, color 0.2s;
-      flex: 1 1 40%;
-      margin-bottom: 4px;
-    }
-    .preset-btn:hover {
       background: #00ffff;
-      color: #181b1f;
-    }
-    .submit-btn {
-      font-size: 1.1rem;
-      padding: 12px 0;
-      width: 100%;
-      margin-top: 1vh;
-      background: #007aff;
-      color: #fff;
-      border: none;
-      border-radius: 10px;
+      color: #000;
       font-weight: 600;
       cursor: pointer;
-      box-shadow: 0 0 10px #007aff44;
-      transition: background 0.2s, color 0.2s;
     }
-    .submit-btn:hover {
-      background: #005bb5;
-    }
-    @media (max-width: 900px) {
-      .container {
-        max-width: 98vw;
-        padding: 1.5vh 2vw 1.5vh 2vw;
-        min-height: 80vh;
-      }
-      .color-preview {
-        min-height: 50px;
-        height: 50px;
-        font-size: 1.1rem;
-        padding: 0.5vh;
-      }
-      h2 {
-        font-size: 1.3rem;
-      }
-    }
-    @media (max-width: 600px) {
-      .container {
-        min-height: 90vh;
-        border-radius: 0;
-        padding: 2vw 2vw 2vw 2vw;
-      }
-      .sliders {
-        gap: 0.7vh;
-      }
-      .slider-row label {
-        width: 32px;
-        font-size: 0.95rem;
-      }
-      .slider-value {
-        width: 24px;
-        font-size: 0.95rem;
-      }
-      .preset-row {
-        gap: 6px;
-        max-width: 100vw;
-      }
-      .preset-btn {
-        padding: 7px 0;
-        font-size: 0.95rem;
-        min-width: 48px;
-      }
-      .submit-btn {
-        font-size: 0.95rem;
-        padding: 10px 0;
-      }
+    button:hover {
+      background: #00cccc;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header"><span class="header-icon">⎌</span>LED Controller</div>
-    <h2>Control Your LEDs</h2>
-    <div class="color-preview" id="colorPreview">Color Preview</div>
-    <form id="rgbForm" action="/" method="GET" style="width:100%;max-width:320px;margin:0 auto;">
-      <div class="sliders">
-        <div class="slider-row">
-          <label for="rInput">Red</label>
-          <input type="range" name="R" id="rInput" min="0" max="255" value="255">
-          <span class="slider-value" id="rVal">255</span>
-        </div>
-        <div class="slider-row">
-          <label for="gInput">Green</label>
-          <input type="range" name="G" id="gInput" min="0" max="255" value="165">
-          <span class="slider-value" id="gVal">165</span>
-        </div>
-        <div class="slider-row">
-          <label for="bInput">Blue</label>
-          <input type="range" name="B" id="bInput" min="0" max="255" value="0">
-          <span class="slider-value" id="bVal">0</span>
-        </div>
-      </div>
-      <div class="preset-row">
-        <button type="button" class="preset-btn" onclick="setPreset(255,0,0)">Red</button>
-        <button type="button" class="preset-btn" onclick="setPreset(0,255,0)">Green</button>
-        <button type="button" class="preset-btn" onclick="setPreset(0,0,255)">Blue</button>
-        <button type="button" class="preset-btn" onclick="setPreset(255,255,255)">White</button>
-      </div>
-      <input class="submit-btn" type="submit" value="Set Color">
-    </form>
+  <h1>ESP32 RGB Controller</h1>
+  <div class="color-preview" id="colorBox"></div>
+
+  <div class="slider-row">
+    <label for="r">Red</label>
+    <input type="range" min="0" max="255" id="r" value="0">
+    <div class="value" id="rVal">0</div>
   </div>
-  <script>
+
+  <div class="slider-row">
+    <label for="g">Green</label>
+    <input type="range" min="0" max="255" id="g" value="0">
+    <div class="value" id="gVal">0</div>
+  </div>
+
+  <div class="slider-row">
+    <label for="b">Blue</label>
+    <input type="range" min="0" max="255" id="b" value="0">
+    <div class="value" id="bVal">0</div>
+  </div>
+
+  <button onclick="sendColor()">Set Color</button>
+
+  <script type="module">
+    // Import Firebase
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+    import { getDatabase, ref, set } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+
+    // Your Firebase config
+    const firebaseConfig = {
+      apiKey: "",
+      authDomain: "esp32ledsk.firebaseapp.com",
+      databaseURL: "https://esp32ledsk-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "esp32ledsk",
+      storageBucket: "esp32ledsk.appspot.com",
+      messagingSenderId: "",
+      appId: ""
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const rSlider = document.getElementById('r');
+    const gSlider = document.getElementById('g');
+    const bSlider = document.getElementById('b');
+
     function updatePreview() {
-      const r = parseInt(document.getElementById('rInput').value) || 0;
-      const g = parseInt(document.getElementById('gInput').value) || 0;
-      const b = parseInt(document.getElementById('bInput').value) || 0;
-      document.getElementById('colorPreview').style.background = `rgb(${r},${g},${b})`;
-      document.getElementById('colorPreview').style.color = (r+g+b > 380) ? '#222' : '#fff';
+      const r = rSlider.value;
+      const g = gSlider.value;
+      const b = bSlider.value;
+      document.getElementById('colorBox').style.backgroundColor = `rgb(${r},${g},${b})`;
       document.getElementById('rVal').textContent = r;
       document.getElementById('gVal').textContent = g;
       document.getElementById('bVal').textContent = b;
     }
-    function setPreset(r, g, b) {
-      document.getElementById('rInput').value = r;
-      document.getElementById('gInput').value = g;
-      document.getElementById('bInput').value = b;
-      updatePreview();
+
+    rSlider.addEventListener('input', updatePreview);
+    gSlider.addEventListener('input', updatePreview);
+    bSlider.addEventListener('input', updatePreview);
+
+    function sendColor() {
+      const r = parseInt(rSlider.value);
+      const g = parseInt(gSlider.value);
+      const b = parseInt(bSlider.value);
+      set(ref(db, 'led'), { r, g, b });
     }
-    document.getElementById('rInput').addEventListener('input', updatePreview);
-    document.getElementById('gInput').addEventListener('input', updatePreview);
-    document.getElementById('bInput').addEventListener('input', updatePreview);
-    window.onload = updatePreview;
+
+    updatePreview();
   </script>
 </body>
 </html>
