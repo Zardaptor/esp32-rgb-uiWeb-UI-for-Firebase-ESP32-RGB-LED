@@ -1,3 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ESP32 RGB Firebase Controller</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #121212;
+      color: #fff;
+      font-family: 'Space Grotesk', sans-serif;
+      text-align: center;
+      padding: 30px 16px;
+    }
+    h1 {
+      color: #00ffff;
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+    #espStatus {
+      font-size: 1rem;
+      margin-bottom: 20px;
+    }
+    .color-preview {
+      width: 120px;
+      height: 120px;
+      margin: 20px auto;
+      border-radius: 12px;
+      border: 2px solid #00cccc;
+      box-shadow: 0 0 20px rgba(0,255,255,0.4);
+      background-color: rgb(0, 0, 0);
+      transition: background 0.3s;
+    }
+    .slider-row {
+      margin: 16px auto;
+      max-width: 300px;
+    }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: #00ffff;
+    }
+    input[type=range] {
+      width: 100%;
+      appearance: none;
+      height: 8px;
+      border-radius: 4px;
+      background: #444;
+      outline: none;
+      margin-bottom: 8px;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #00ffff;
+      cursor: pointer;
+    }
+    .value {
+      font-size: 1rem;
+      margin-top: -8px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px 24px;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 8px;
+      background: #00ffff;
+      color: #000;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #00cccc;
+    }
+  </style>
+</head>
 <body>
   <h1>ESP32 RGB Controller</h1>
   <p id="espStatus">ESP32 Status: ⏳ Checking...</p>
@@ -28,13 +109,13 @@
     import { getDatabase, ref, set, onValue } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
 
     const firebaseConfig = {
-      apiKey: "AIzaSyBP8wfVbjnKvvJ3AohFG1r00K7hWt5xOMA", 
+      apiKey: "AIzaSyBP8wfVbjnKvvJ3AohFG1r00K7hWt5xOMA",
       authDomain: "esp32ledsk.firebaseapp.com",
       databaseURL: "https://esp32ledsk-default-rtdb.asia-southeast1.firebasedatabase.app",
       projectId: "esp32ledsk",
       storageBucket: "esp32ledsk.appspot.com",
-      messagingSenderId: "597212475201", // ✅ Optional
-      appId: "1:597212475201:web:e43ada88bb36889588bbc0"               // ✅ Optional
+      messagingSenderId: "597212475201",
+      appId: "1:597212475201:web:e43ada88bb36889588bbc0"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -63,7 +144,14 @@
       const r = parseInt(rSlider.value);
       const g = parseInt(gSlider.value);
       const b = parseInt(bSlider.value);
-      set(ref(db, 'led'), { r, g, b });
+
+      set(ref(db, 'led'), { r, g, b })
+        .then(() => {
+          console.log("✅ Color sent:", r, g, b);
+        })
+        .catch((error) => {
+          console.error("❌ Failed to send color:", error);
+        });
     }
 
     // Listen for ESP32 connection status
@@ -79,3 +167,4 @@
     updatePreview();
   </script>
 </body>
+</html>
